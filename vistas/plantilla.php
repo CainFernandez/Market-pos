@@ -55,6 +55,12 @@ scratch. This page gets rid of all links and provides the needed markup only.
   </div>
   <!-- ./wrapper -->
 
+  <script>
+    function CargarContenido(pagina_php,contenedor){
+      $("."+ contenedor).load(pagina_php);
+    }
+  </script>
+
 </body>
 
 </html>
