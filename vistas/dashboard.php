@@ -26,7 +26,7 @@
                 <!-- small box -->
                 <div class="small-box bg-info">
                     <div class="inner">
-                        <h4 id="totalProductos">125</h4>
+                        <h4 id="totalProductos"></h4>
 
                         <p>Productos registrados</p>
                     </div>
@@ -43,7 +43,7 @@
                 <!-- small box -->
                 <div class="small-box bg-success">
                     <div class="inner">
-                        <h4 id="totalCompras">B/. 2,500.00</h4>
+                        <h4 id="totalCompras"></h4>
 
                         <p>Total Compras</p>
                     </div>
@@ -60,7 +60,7 @@
                 <!-- small box -->
                 <div class="small-box bg-warning">
                     <div class="inner">
-                        <h4 id="totalVentas">B/. 1,200.00</h4>
+                        <h4 id="totalVentas"></h4>
 
                         <p>Total Ventas</p>
                     </div>
@@ -78,14 +78,14 @@
                 <!-- small box -->
                 <div class="small-box bg-danger">
                     <div class="inner">
-                        <h4 id="totalGanacias">B/. 470.00</h4>
+                        <h4 id="totalGanancias"></h4>
 
                         <p>Total Ganancias</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-clipboard"></i>
                     </div>
-                    <a style="cursor:pointer;" class="small-box-footer">More info 
+                    <a style="cursor:pointer;" class="small-box-footer">More info
                         <i class="fas fa-arrow-circle-right"></i>
                     </a>
                 </div>
@@ -96,7 +96,7 @@
                 <!-- small box -->
                 <div class="small-box bg-primary">
                     <div class="inner">
-                        <h4 id="totalProductosMinStock">15</h4>
+                        <h4 id="totalProductosMinStock"></h4>
 
                         <p>Productos pocos stock</p>
                     </div>
@@ -113,7 +113,7 @@
                 <!-- small box -->
                 <div class="small-box bg-secondary">
                     <div class="inner">
-                        <h4 id="totalVentasHoy">B/. 250.00</h4>
+                        <h4 id="totalVentasHoy"></h4>
 
                         <p>Ventas del dìa</p>
                     </div>
@@ -128,3 +128,23 @@
     </div>
 </div>
 <!-- /.content -->
+
+<script>
+    $(document).ready(function () {
+
+        $.ajax({
+            url: "ajax/dashboard.ajax.php",
+            method: 'POST',
+            dataType: 'json',
+            success: function (respuesta) {
+                console.log("respuesta", respuesta);
+                $("#totalProductos").html(respuesta[0]['totalProductos']);
+                $("#totalCompras").html('B/. ' + respuesta[0]['totalCompras'].toLocaleString('es-PE'));
+                $("#totalVentas").html('B/. ' + respuesta[0]['totalVentas'].toLocaleString('es-PE'));
+                $("#totalGanancias").html('B/. ' + respuesta[0]['ganancias'].toLocaleString('es-PE'));
+                $("#totalProductosMinStock").html(respuesta[0]['productosPocoStock']);
+                $("#totalVentasHoy").html('B/. ' + respuesta[0]['ventasHoy'].toLocaleString('es-PE'));
+            }
+        });
+    })
+</script>
