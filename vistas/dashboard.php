@@ -20,7 +20,7 @@
 <div class="content">
     <div class="container-fluid">
 
-        <!-- Creamos una fila -->
+        <!-- row Panel de Control -->
         <div class="row">
             <div class="col-lg-2">
                 <!-- small box -->
@@ -31,7 +31,7 @@
                         <p>Productos registrados</p>
                     </div>
                     <div class="icon">
-                        <i class="ion ion-clipboard"></i>
+                        <i class="fas fa-clipboard-list"></i>
                     </div>
                     <a style="cursor:pointer;" class="small-box-footer">More info
                         <i class="fas fa-arrow-circle-right"></i></a>
@@ -48,7 +48,7 @@
                         <p>Total Compras</p>
                     </div>
                     <div class="icon">
-                        <i class="ion ion-clipboard"></i>
+                        <i class="far fa-money-bill-alt"></i>
                     </div>
                     <a style="cursor:pointer;" class="small-box-footer">More info
                         <i class="fas fa-arrow-circle-right"></i></a>
@@ -65,7 +65,7 @@
                         <p>Total Ventas</p>
                     </div>
                     <div class="icon">
-                        <i class="ion ion-clipboard"></i>
+                        <i class="fas fa-shopping-cart"></i>
                     </div>
                     <a style="cursor:pointer;" class="small-box-footer">More info
                         <i class="fas fa-arrow-circle-right"></i>
@@ -83,7 +83,7 @@
                         <p>Total Ganancias</p>
                     </div>
                     <div class="icon">
-                        <i class="ion ion-clipboard"></i>
+                        <i class="fas fa-chart-pie"></i>
                     </div>
                     <a style="cursor:pointer;" class="small-box-footer">More info
                         <i class="fas fa-arrow-circle-right"></i>
@@ -101,7 +101,7 @@
                         <p>Productos pocos stock</p>
                     </div>
                     <div class="icon">
-                        <i class="ion ion-clipboard"></i>
+                        <i class="fas fa-minus-circle"></i>
                     </div>
                     <a style="cursor:pointer;" class="small-box-footer">More info <i
                             class="fas fa-arrow-circle-right"></i></a>
@@ -118,13 +118,37 @@
                         <p>Ventas del dìa</p>
                     </div>
                     <div class="icon">
-                        <i class="ion ion-clipboard"></i>
+                        <i class="fas fa-calendar-day"></i>
                     </div>
                     <a style="cursor:pointer;" class="small-box-footer">More info <i
                             class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
-        </div><!-- /.container-fluid -->
+        </div><!-- /.row Panel de Control -->
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-info">
+                    <div class="card-header">
+                        <h3 class="card-title"></h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart">
+                            <canvas id="barChart" style="min-height: 250px; height: 300px; max-height: 350px; width: 100%;">
+                            </canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <!-- /.content -->
@@ -132,6 +156,9 @@
 <script>
     $(document).ready(function () {
 
+        /*=============================================
+        SOLICITUD AJAX PANEL DE CONTROL
+        ===============================================*/
         $.ajax({
             url: "ajax/dashboard.ajax.php",
             method: 'POST',
@@ -146,5 +173,49 @@
                 $("#totalVentasHoy").html('B/. ' + respuesta[0]['ventasHoy'].toLocaleString('es-PE'));
             }
         });
+
+        setInterval(() => {
+            $.ajax({
+                url: "ajax/dashboard.ajax.php",
+                method: 'POST',
+                dataType: 'json',
+                success: function (respuesta) {
+                    console.log("respuesta", respuesta);
+                    $("#totalProductos").html(respuesta[0]['totalProductos']);
+                    $("#totalCompras").html('B/. ' + respuesta[0]['totalCompras'].toLocaleString('es-PE'));
+                    $("#totalVentas").html('B/. ' + respuesta[0]['totalVentas'].toLocaleString('es-PE'));
+                    $("#totalGanancias").html('B/. ' + respuesta[0]['ganancias'].toLocaleString('es-PE'));
+                    $("#totalProductosMinStock").html(respuesta[0]['productosPocoStock']);
+                    $("#totalVentasHoy").html('B/. ' + respuesta[0]['ventasHoy'].toLocaleString('es-PE'));
+                }
+            });
+        }, 10000);
+
+        $.ajax({
+            url: "ajax/dashboard.ajax.php",
+            method: 'POST',
+            data:{
+                'accion' : 1 //parametro para obtener las ventas del mes.
+            },
+            dataType: 'json',
+            success: function (respuesta) {
+                console.log("respuesta", respuesta);
+                
+                var fecha_venta = [];
+                var total_venta = [];
+                var total_ventas_mes = 0;
+
+                for (let i = 0; i < respuesta.length; i++) {
+                    fecha_venta.push(respuesta[i]['fecha_venta']);
+                    total_venta.push(respuesta[i]['total_venta']);
+                    total_ventas_mes = parseFloat(total_ventas_mes) + parseFloat(respuesta[i]['total_venta']);
+                    
+                }
+                console.log(total_ventas_mes);
+
+                $(".card-title").html('Ventas del mes: B/. '+ total_ventas_mes.toLocaleString('es-PE'));
+            }
+        });
     })
+
 </script>
