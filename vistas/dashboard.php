@@ -142,7 +142,8 @@
                     </div>
                     <div class="card-body">
                         <div class="chart">
-                            <canvas id="barChart" style="min-height: 250px; height: 300px; max-height: 350px; width: 100%;">
+                            <canvas id="barChart"
+                                style="min-height: 250px; height: 300px; max-height: 350px; width: 100%;">
                             </canvas>
                         </div>
                     </div>
@@ -194,13 +195,13 @@
         $.ajax({
             url: "ajax/dashboard.ajax.php",
             method: 'POST',
-            data:{
-                'accion' : 1 //parametro para obtener las ventas del mes.
+            data: {
+                'accion': 1 //parametro para obtener las ventas del mes.
             },
             dataType: 'json',
             success: function (respuesta) {
                 console.log("respuesta", respuesta);
-                
+
                 var fecha_venta = [];
                 var total_venta = [];
                 var total_ventas_mes = 0;
@@ -209,11 +210,73 @@
                     fecha_venta.push(respuesta[i]['fecha_venta']);
                     total_venta.push(respuesta[i]['total_venta']);
                     total_ventas_mes = parseFloat(total_ventas_mes) + parseFloat(respuesta[i]['total_venta']);
-                    
+
                 }
                 console.log(total_ventas_mes);
 
-                $(".card-title").html('Ventas del mes: B/. '+ total_ventas_mes.toLocaleString('es-PE'));
+                $(".card-title").html('Ventas del mes: B/. ' + total_ventas_mes.toLocaleString('es-PE'));
+
+                //LLamar al grafico.
+                var barChartCanvas = $("#barChart").get(0).getContext('2d');
+
+                var areaChartData = {
+                    labels: fecha_venta,
+                    datasets: [
+                        {
+                            label: 'Ventas del Mes',
+                            backgroundColor: 'rgba(60,141,188,0.9)',
+                            data: total_venta
+                        }
+
+                    ]
+                }
+
+                var barChartData = $.extend(true, {}, areaChartData);
+
+                var temp0 = areaChartData.datasets[0];
+
+                barChartData.datasets[0] = temp0;
+
+                //Diseño para la grafica.
+                var barChartOptions = {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    events: false,
+                    legend: {
+                        display: true
+                    },
+                    animation: {
+                        duration: 500,
+                        easing: "easeOutQuart",
+                        onComplete: function () {
+                            var ctx = this.chart.ctx;
+                            ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontFamily, 'normal',
+                                Chart.defaults.global.defaultFontFamily);
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'bottom';
+
+                            this.data.datasets.forEach(function (dataset) {
+                                for (var i = 0; i < dataset.length; i++) {
+                                    var model = dataset._meta[Object.keys(dataset._meta)[0]].data[i]._model,
+                                        scale_max = dataset._meta[Object.keys(dataset._meta)[0]].data[i]._yScale.maxHeight;
+                                    ctx.fillStyle = '#444';
+                                    var y_pos = model.y - 5;
+
+                                    if ((scale_max - model.y) / scale_max >= 0.93)
+                                        y_pos = model.y + 20;
+                                    ctx.fillText(dataset.data[i], model.x, y_pos);
+                                }
+
+                            });
+                        }
+                    }
+                }
+
+                new Chart(barChartCanvas, {
+                    type: 'bar',
+                    data: barChartData,
+                    options: barChartOptions
+                })
             }
         });
     })
